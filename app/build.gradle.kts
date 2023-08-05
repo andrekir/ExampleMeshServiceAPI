@@ -38,6 +38,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        aidl = true
         compose = true
     }
     composeOptions {

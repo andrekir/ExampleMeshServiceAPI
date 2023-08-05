@@ -25,4 +25,7 @@
         </activity>
     </application>
 
+    <queries>
+        <package android:name="com.geeksville.mesh" />
+    </queries>
 </manifest>
