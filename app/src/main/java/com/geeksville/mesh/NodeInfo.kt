@@ -2,7 +2,6 @@ package com.geeksville.mesh
 
 import android.graphics.Color
 import android.os.Parcelable
-
 import kotlinx.parcelize.Parcelize
 
 //
@@ -102,6 +101,7 @@ data class NodeInfo(
     var rssi: Int = Int.MAX_VALUE,
     var lastHeard: Int = 0, // the last time we've seen this node in secs since 1970
     var deviceMetrics: DeviceMetrics? = null,
+    val channel: Int = 0,
     var environmentMetrics: EnvironmentMetrics? = null,
 ) : Parcelable {
 
@@ -111,7 +111,7 @@ data class NodeInfo(
             val g = (num and 0x00FF00) shr 8
             val b = num and 0x0000FF
             val brightness = ((r * 0.299) + (g * 0.587) + (b * 0.114)) / 255
-            return Pair(if (brightness > 0.5) Color.BLACK else Color.WHITE, Color.rgb(r, g, b))
+            return (if (brightness > 0.5) Color.BLACK else Color.WHITE) to Color.rgb(r, g, b)
         }
 
     val batteryLevel get() = deviceMetrics?.batteryLevel
@@ -131,17 +131,12 @@ data class NodeInfo(
 
     /**
      * true if the device was heard from recently
-     *
-     * Note: if a node has never had its time set, it will have a time of zero.  In that
-     * case assume it is online - so that we will start sending GPS updates
      */
     val isOnline: Boolean
         get() {
             val now = System.currentTimeMillis() / 1000
-            // FIXME - use correct timeout from the device settings
-            val timeout =
-                15 * 60 // Don't set this timeout too tight, or otherwise we will stop sending GPS helper positions to our device
-            return (now - lastHeard <= timeout) || lastHeard == 0
+            val timeout = 15 * 60
+            return (now - lastHeard <= timeout)
         }
 
     /// return the position if it is valid, else null
