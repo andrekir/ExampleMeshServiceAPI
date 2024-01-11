@@ -45,7 +45,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val filter = IntentFilter("com.geeksville.mesh.NODE_CHANGE")
+        val filter = IntentFilter().apply {
+            addAction("com.geeksville.mesh.NODE_CHANGE")
+            addAction("com.geeksville.mesh.RECEIVED.TEXT_MESSAGE_APP")
+        }
         registerReceiver(meshNodeChangeReceiver, filter)
 
         val intent = Intent().apply {
