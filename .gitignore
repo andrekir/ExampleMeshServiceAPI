@@ -1,0 +1,26 @@
+# Android Studio
+/.idea/*
+!/.idea/codeStyles
+!/.idea/dictionaries/
+!/.idea/runConfigurations/
+*.iws
+*.iml
+
+.gradle
+/local.properties
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+/app/release
+
+# Java KeyStore certificates
+*.jks
+keystore.properties
+
+# AGP profiling traces
+*.trace
+
+# Kotlin compiler
+.kotlin
