@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,11 +17,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.os.Parcelable
+import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.geeksville.mesh.DataPacket
 import com.geeksville.mesh.IMeshService
+import com.geeksville.mesh.NodeInfo
+
+inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(key: String?): T? =
+    IntentCompat.getParcelableExtra(this, key, T::class.java)
 
 class MainActivity : ComponentActivity() {
-    private val meshNodeChangeReceiver = MeshNodeChangeReceiver()
+    private val receiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                "com.geeksville.mesh.NODE_CHANGE" -> {
+                    // Perform actions or processing here based on the received broadcast intent
+                    // For example, you can extract data from the intent using extras
+                    val info: NodeInfo? =
+                        intent.getParcelableExtraCompat("com.geeksville.mesh.NodeInfo")
+                    println("received $info")
+                }
+
+                "com.geeksville.mesh.RECEIVED.TEXT_MESSAGE_APP" -> {
+                    val payload: DataPacket? =
+                        intent.getParcelableExtraCompat("com.geeksville.mesh.Payload")
+                    println("received $payload")
+                }
+            }
+        }
+    }
 
     // Service connection to handle the communication with the service
     private var meshService: IMeshService? = null
@@ -49,7 +76,12 @@ class MainActivity : ComponentActivity() {
             addAction("com.geeksville.mesh.NODE_CHANGE")
             addAction("com.geeksville.mesh.RECEIVED.TEXT_MESSAGE_APP")
         }
-        registerReceiver(meshNodeChangeReceiver, filter)
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
 
         val intent = Intent().apply {
             setClassName(
